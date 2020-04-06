@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, Image, StyleSheet,  TouchableOpacity , FlatList } from 'react-native'
+import { Text, View, KeyboardAvoidingView, Image, StyleSheet,  TouchableOpacity , FlatList, TextInput } from 'react-native'
 import io from 'socket.io-client'
 import api from '../services/api';
 import camera from '../assets/camera.png';
@@ -7,6 +7,7 @@ import more from '../assets/more.png';
 import like from '../assets/like.png';
 import comment from '../assets/comment.png';
 import send from '../assets/send.png';
+
 
 export default class Feed extends Component {
     static navigationOptions = ({ navigation }) => ({
@@ -21,11 +22,21 @@ export default class Feed extends Component {
 
     state = {
         feed : [],
+        author:"",
+        description:""
     };
 
     handleLike = async id => {
         await api.post(`posts/${id}/like`);
     } 
+
+    handleComment = async comment => {
+
+        console.log(comment);
+        await api.post(`posts/${comment.id}/comment`, comment);
+
+        this.setState({ author:"", description:"" });
+    }
 
     async componentDidMount (){
         this.registerToSocket();
@@ -37,7 +48,7 @@ export default class Feed extends Component {
     };
 
     registerToSocket = () => {
-        const socket = io('http://192.168.0.10:3333');
+        const socket = io('http://localhost:3333');
 
         socket.on('post', newPost => {
             this.setState({
@@ -56,11 +67,10 @@ export default class Feed extends Component {
         });
     }
 
-    
 
     render() {
         return (
-            <View style={styles.container}>
+            <KeyboardAvoidingView behavior='position' style={styles.container}>
                 
                 <FlatList 
                     data={this.state.feed}
@@ -77,7 +87,7 @@ export default class Feed extends Component {
                                 <Image source={ more }/>
                             </View>
                         
-                            <Image style={ styles.feedImage  } source={ { uri:`http://192.168.0.10:3333/files/${item.image}` } } />
+                            <Image style={ styles.feedImage  } source={ { uri:`http://localhost:3333/files/${item.image}` } } />
                             <View style={ styles.feedItemFooter }>
                                 <View style={styles.actions}>
                                     <TouchableOpacity style={styles.action} onPress={ () =>{ this.handleLike(item._id) } }>
@@ -90,16 +100,65 @@ export default class Feed extends Component {
                                         <Image source={ send } />
                                     </TouchableOpacity>
                                 </View>
-                                    <Text style={styles.likes}> { item.likes } curtidas</Text>
-                                    <Text style={styles.description}> { item.description } </Text>
-                                    <Text style={styles.hashtags}> { item.hashtags } </Text>
+                                <Text style={styles.likes}> { item.likes } curtidas</Text>
+                                <Text style={styles.description}> { item.description } </Text>
+                                <Text style={styles.hashtags}> { item.hashtags } </Text>
+                                <View  style={ styles.comments }>
+                                <View>
+                                    <FlatList 
+                                        data={item.comments}
+                                        keyExtractor={obj => obj._id}
+                                        renderItem={ (  { item : comment }  ) =>( 
+                                            <View style={ styles.comment }>
+                                                <View>
+                                                        <Image style={ styles.commentImage  } source={ { uri:`http://localhost:3333/files/${item.image}` } } />
+                                                </View>
+                                                <View style={ {  flexDirection:'column' } }>
+                                                    <View style={ {  flexDirection:'row' } }>
+                                                        <Text style={ styles.commentAuthor }> { comment.author }</Text>
+                                                        <Text style={ styles.commentDescription }> { comment.description  }  </Text>
+                                                    </View>
+                                                    <View style={ {  flexDirection:'row' } }>
+                                                        <Text style={ styles.reply }> 1m</Text>
+                                                        <Text style={ styles.reply }> Reply  </Text>
+                                                    </View>
+                                                </View>
 
+                                            </View>
+                                        )}>
+                                            
+                                    </FlatList> 
+                                    <View   style={ styles.commentDescriptionSection }>
+                                        <TextInput 
+                                            style={ styles.input}
+                                            autoCorrect={ false }
+                                            placeholder="Author"
+                                            placeholderTextColor="#999"
+                                            value={ this.state.author }
+                                            onChangeText={ author => this.setState({ author } )}
+                                        />
+                                    
+                                        <TextInput 
+                                            style={ styles.input}
+                                            autoCorrect={ false }
+                                            placeholder="Comment"
+                                            placeholderTextColor="#999"
+                                            value={ this.state.description }
+                                            onChangeText={ description => this.setState({ description })}
+                                        />
+                                        <TouchableOpacity onPress={ () => {  this.handleComment( { id: item._id,  author: this.state.author  , description : this.state.description } )} }>
+                                            <Text style={ styles.sendButton }> Post</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+
+                                </View>
                             </View>
                         </View>
 
                     ) }
                 />
-            </View>
+            </KeyboardAvoidingView>
         )
     }
 }
@@ -151,6 +210,47 @@ const styles = StyleSheet.create({
     },
     hashtags:{
         color:'#7159c1'
-    }
+    },
+    comments :{
+        flex:1
+    },
+    comment :{
+        flexDirection:'row',
+        alignItems: 'center',
+        padding:10,
+    },
+    commentAuthor :{
+        fontWeight:'600',
+        lineHeight: 18,
+        color:'#000',
+    },
+    commentDescription :{
+        
+        
+    },
+    commentDescriptionSection:{
+        
+        fontWeight: '100',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    input:{
+        padding:10,
+        fontSize: 16,
+        marginVertical:7
+    },
+    sendButton:{
+        color:'#0095f6'
 
+    },
+    commentImage:{
+        height:30,
+        width:30,
+        borderRadius:10,
+        marginRight:10,
+    },
+    reply:{
+        color:'#8e8e8e'
+    },
 });

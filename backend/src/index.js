@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const app = express();
 
+app.use(express.json());
+
 // define server to use http protocol
 const server = require('http').Server(app);
 

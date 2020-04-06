@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const comment = require('./Comment');
+
+//var comment = new mongoose.Schema({ name: String });
 
 const PostSchema = new mongoose.Schema({
     author:String,
@@ -9,6 +12,10 @@ const PostSchema = new mongoose.Schema({
     likes: {
         type:Number,
         default:0,
+    },
+    comments : {
+        type: [ comment.schema ] ,
+        default: [],
     }
 },{
     timestamps:true

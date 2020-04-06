@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, TouchableOpacity, TextInput, Image } from 'react-native'
+import { Text, Platform,  KeyboardAvoidingView,  View, TouchableOpacity, TextInput, Image } from 'react-native'
 import ImagePicker from 'react-native-image-picker';
 import api from '../services/api';
 
@@ -76,7 +76,7 @@ export default class New extends Component {
 
     render() {
         return (
-            <View style={ styles.container }>
+            <KeyboardAvoidingView enabled={ Platform.OS === 'ios' } behavior="padding"  style={ styles.container }>
                 <TouchableOpacity style={ styles.selectButton } onPress={ this.handleSelectImage }>
                     <Text style={ styles.selectButtonText }> Select Image </Text>
                 </TouchableOpacity>
@@ -127,7 +127,7 @@ export default class New extends Component {
                                     onPress={ this.handleSubmit }>
                     <Text style={ styles.shareButtonText }> Share </Text>
                 </TouchableOpacity>
-            </View>
+            </KeyboardAvoidingView>
         )
     }
 }
