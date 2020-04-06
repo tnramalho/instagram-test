@@ -5,8 +5,10 @@ import api from '../services/api';
 import camera from '../assets/camera.png';
 import more from '../assets/more.png';
 import like from '../assets/like.png';
-import comment from '../assets/comment.png';
+import commentImg from '../assets/comment.png';
 import send from '../assets/send.png';
+
+import Comment from '../components/Comment';
 
 
 export default class Feed extends Component {
@@ -23,7 +25,10 @@ export default class Feed extends Component {
     state = {
         feed : [],
         author:"",
-        description:""
+        description:"",
+
+        showComment: false,
+
     };
 
     handleLike = async id => {
@@ -83,7 +88,6 @@ export default class Feed extends Component {
                                         <Text style={ styles.name }> { item.author } </Text>
                                         <Text style={ styles.place }> { item.place } </Text>
                                 </View>
-
                                 <Image source={ more }/>
                             </View>
                         
@@ -93,8 +97,8 @@ export default class Feed extends Component {
                                     <TouchableOpacity style={styles.action} onPress={ () =>{ this.handleLike(item._id) } }>
                                         <Image source={ like } />
                                     </TouchableOpacity>
-                                    <TouchableOpacity  style={styles.action} onPress={ () =>{ } }>
-                                        <Image source={ comment } />
+                                    <TouchableOpacity  style={styles.action} onPress={ () =>{ this.setState({ showComment: !this.state.showComment }) } }>
+                                        <Image source={ commentImg } />
                                     </TouchableOpacity>
                                     <TouchableOpacity  style={styles.action} onPress={ () =>{ } }>
                                         <Image source={ send } />
@@ -109,47 +113,38 @@ export default class Feed extends Component {
                                         data={item.comments}
                                         keyExtractor={obj => obj._id}
                                         renderItem={ (  { item : comment }  ) =>( 
-                                            <View style={ styles.comment }>
-                                                <View>
-                                                        <Image style={ styles.commentImage  } source={ { uri:`http://localhost:3333/files/${item.image}` } } />
-                                                </View>
-                                                <View style={ {  flexDirection:'column' } }>
-                                                    <View style={ {  flexDirection:'row' } }>
-                                                        <Text style={ styles.commentAuthor }> { comment.author }</Text>
-                                                        <Text style={ styles.commentDescription }> { comment.description  }  </Text>
-                                                    </View>
-                                                    <View style={ {  flexDirection:'row' } }>
-                                                        <Text style={ styles.reply }> 1m</Text>
-                                                        <Text style={ styles.reply }> Reply  </Text>
-                                                    </View>
-                                                </View>
 
-                                            </View>
+                                            <Comment  image={ item.image }
+                                                      author={ comment.author  } 
+                                                      description={ comment.description } />
+                                            
                                         )}>
                                             
                                     </FlatList> 
-                                    <View   style={ styles.commentDescriptionSection }>
-                                        <TextInput 
-                                            style={ styles.input}
-                                            autoCorrect={ false }
-                                            placeholder="Author"
-                                            placeholderTextColor="#999"
-                                            value={ this.state.author }
-                                            onChangeText={ author => this.setState({ author } )}
-                                        />
-                                    
-                                        <TextInput 
-                                            style={ styles.input}
-                                            autoCorrect={ false }
-                                            placeholder="Comment"
-                                            placeholderTextColor="#999"
-                                            value={ this.state.description }
-                                            onChangeText={ description => this.setState({ description })}
-                                        />
-                                        <TouchableOpacity onPress={ () => {  this.handleComment( { id: item._id,  author: this.state.author  , description : this.state.description } )} }>
-                                            <Text style={ styles.sendButton }> Post</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                    { this.state.showComment &&
+                                            <View   style={ styles.commentDescriptionSection }>
+                                                <TextInput 
+                                                    style={ styles.input}
+                                                    autoCorrect={ false }
+                                                    placeholder="Author"
+                                                    placeholderTextColor="#999"
+                                                    value={ this.state.author }
+                                                    onChangeText={ author => this.setState({ author } )}
+                                                />
+                                            
+                                                <TextInput 
+                                                    style={ styles.input}
+                                                    autoCorrect={ false }
+                                                    placeholder="Comment"
+                                                    placeholderTextColor="#999"
+                                                    value={ this.state.description }
+                                                    onChangeText={ description => this.setState({ description })}
+                                                />
+                                                <TouchableOpacity onPress={ () => {  this.handleComment( { id: item._id,  author: this.state.author  , description : this.state.description } )} }>
+                                                    <Text style={ styles.sendButton }> Post</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                    }
                                 </View>
 
                                 </View>
