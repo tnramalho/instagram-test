@@ -32,7 +32,6 @@ export default class Feed extends Component {
         showCommentFromId: null
     };
 
-
     handleShowComment = id => {
         if (id == this.state.showCommentFromId){
             this.setState({
@@ -51,8 +50,6 @@ export default class Feed extends Component {
 
     handleComment = async comment => {
 
-        console.log("handleComment");
-        console.log(comment);
         await api.post(`posts/${comment.id}/comment`, comment);
 
         this.setState({ author:"", description:"" });
