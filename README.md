@@ -6,7 +6,7 @@ used as playground for Node.js, React and React Native
 ## To Execute
 
 ```Shell
-yarn # para instalar as dependências
+yarn # to install dependecies
 
 yarn dev # backend
 yarn start # frontend
